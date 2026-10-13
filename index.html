@@ -1,0 +1,1047 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Capturador de Fotos - JotForm Widget</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+      background: #f3f4f6;
+    }
+
+    .container {
+      width: 600px;
+      height: 350px;
+      display: flex;
+      flex-direction: column;
+      background: linear-gradient(135deg, #eff6ff 0%, #e0e7ff 100%);
+      border-radius: 0.5rem;
+      overflow: hidden;
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    }
+
+    /* Header */
+    .header {
+      flex-shrink: 0;
+      text-align: center;
+      padding: 0.5rem;
+      position: relative;
+      border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+    }
+
+    .header h1 {
+      font-size: 0.875rem;
+      font-weight: 700;
+      color: #111827;
+      margin: 0;
+    }
+
+    .header p {
+      font-size: 0.75rem;
+      color: #6b7280;
+      margin: 0;
+    }
+
+    .settings-icon-btn {
+      position: absolute;
+      top: 0.25rem;
+      right: 0.5rem;
+      width: 1.5rem;
+      height: 1.5rem;
+      border-radius: 50%;
+      background: #4f46e5;
+      border: none;
+      color: white;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.2s;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    }
+
+    .settings-icon-btn:hover {
+      background: #4338ca;
+      transform: scale(1.1);
+    }
+
+    .settings-icon-btn svg {
+      width: 0.75rem;
+      height: 0.75rem;
+    }
+
+    /* Main Content Area */
+    .content {
+      flex: 1;
+      overflow-y: auto;
+      padding: 0.5rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+    }
+
+    .content::-webkit-scrollbar {
+      width: 6px;
+    }
+
+    .content::-webkit-scrollbar-track {
+      background: transparent;
+    }
+
+    .content::-webkit-scrollbar-thumb {
+      background: #cbd5e1;
+      border-radius: 3px;
+    }
+
+    .content::-webkit-scrollbar-thumb:hover {
+      background: #94a3b8;
+    }
+
+    /* Messages */
+    .error-message,
+    .success-message {
+      padding: 0.5rem;
+      border-radius: 0.375rem;
+      font-size: 0.75rem;
+      display: flex;
+      align-items: flex-start;
+      gap: 0.5rem;
+      flex-shrink: 0;
+    }
+
+    .error-message {
+      background: #fef2f2;
+      border: 1px solid #fecaca;
+      color: #991b1b;
+    }
+
+    .success-message {
+      background: #f0fdf4;
+      border: 1px solid #bbf7d0;
+      color: #166534;
+      animation: pulse 2s infinite;
+    }
+
+    @keyframes pulse {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.7; }
+    }
+
+    /* Camera Section */
+    .camera-section {
+      background: white;
+      border-radius: 0.375rem;
+      padding: 0.5rem;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+      flex-shrink: 0;
+    }
+
+    .camera-placeholder {
+      text-align: center;
+      padding: 1rem 0;
+    }
+
+    .camera-placeholder svg {
+      width: 1.5rem;
+      height: 1.5rem;
+      color: #d1d5db;
+      margin: 0 auto 0.5rem;
+    }
+
+    .camera-placeholder p {
+      font-size: 0.75rem;
+      color: #6b7280;
+      margin-bottom: 0.5rem;
+    }
+
+    .video-container {
+      position: relative;
+      width: 100%;
+      background: #000;
+      border-radius: 0.375rem;
+      overflow: hidden;
+      aspect-ratio: 16 / 9;
+      margin-bottom: 0.5rem;
+    }
+
+    video {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
+    .button-group {
+      display: flex;
+      gap: 0.5rem;
+      justify-content: center;
+    }
+
+    button {
+      padding: 0.375rem 0.75rem;
+      border: none;
+      border-radius: 0.375rem;
+      font-size: 0.75rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s;
+      display: flex;
+      align-items: center;
+      gap: 0.25rem;
+      justify-content: center;
+    }
+
+    .btn-primary {
+      background: #4f46e5;
+      color: white;
+    }
+
+    .btn-primary:hover {
+      background: #4338ca;
+    }
+
+    .btn-success {
+      background: #16a34a;
+      color: white;
+    }
+
+    .btn-success:hover {
+      background: #15803d;
+    }
+
+    .btn-danger {
+      background: #dc2626;
+      color: white;
+    }
+
+    .btn-danger:hover {
+      background: #b91c1c;
+    }
+
+    .btn-secondary {
+      background: #6b7280;
+      color: white;
+    }
+
+    .btn-secondary:hover {
+      background: #4b5563;
+    }
+
+    /* Gallery Section */
+    .gallery-section {
+      background: white;
+      border-radius: 0.375rem;
+      padding: 0.5rem;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+      flex-shrink: 0;
+    }
+
+    .gallery-title {
+      font-size: 0.75rem;
+      font-weight: 700;
+      color: #111827;
+      margin-bottom: 0.5rem;
+    }
+
+    .gallery-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 0.5rem;
+    }
+
+    .photo-item {
+      position: relative;
+      aspect-ratio: 1;
+      border-radius: 0.375rem;
+      overflow: hidden;
+      background: #f3f4f6;
+      cursor: pointer;
+    }
+
+    .photo-item img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
+    .photo-overlay {
+      position: absolute;
+      inset: 0;
+      background: rgba(0, 0, 0, 0);
+      display: flex;
+      align-items: flex-end;
+      opacity: 0;
+      transition: all 0.2s;
+    }
+
+    .photo-item:hover .photo-overlay {
+      background: rgba(0, 0, 0, 0.4);
+      opacity: 1;
+    }
+
+    .photo-info {
+      width: 100%;
+      padding: 0.25rem;
+      background: linear-gradient(to top, rgba(0, 0, 0, 0.8), transparent);
+      color: white;
+    }
+
+    .photo-name {
+      font-size: 0.625rem;
+      font-weight: 600;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      margin-bottom: 0.25rem;
+    }
+
+    .photo-actions {
+      display: flex;
+      gap: 0.25rem;
+    }
+
+    .photo-actions button {
+      flex: 1;
+      padding: 0.25rem;
+      font-size: 0.625rem;
+      gap: 0.125rem;
+    }
+
+    .btn-edit {
+      background: #2563eb;
+    }
+
+    .btn-edit:hover {
+      background: #1d4ed8;
+    }
+
+    .btn-remove {
+      background: #dc2626;
+    }
+
+    .btn-remove:hover {
+      background: #b91c1c;
+    }
+
+    /* Rename Modal */
+    .rename-modal {
+      display: none;
+      background: white;
+      border: 1px solid #e5e7eb;
+      border-radius: 0.375rem;
+      padding: 0.5rem;
+      flex-shrink: 0;
+    }
+
+    .rename-modal.show {
+      display: block;
+    }
+
+    .rename-modal h3 {
+      font-size: 0.75rem;
+      font-weight: 700;
+      color: #111827;
+      margin-bottom: 0.5rem;
+    }
+
+    .rename-modal img {
+      width: 100%;
+      height: 4rem;
+      object-fit: cover;
+      border-radius: 0.375rem;
+      margin-bottom: 0.5rem;
+    }
+
+    .rename-modal input {
+      width: 100%;
+      padding: 0.375rem;
+      border: 1px solid #d1d5db;
+      border-radius: 0.375rem;
+      font-size: 0.75rem;
+      margin-bottom: 0.5rem;
+      font-family: inherit;
+    }
+
+    .rename-modal input:focus {
+      outline: none;
+      ring: 1px solid #4f46e5;
+      border-color: #4f46e5;
+    }
+
+    .rename-actions {
+      display: flex;
+      gap: 0.5rem;
+    }
+
+    .rename-actions button {
+      flex: 1;
+      padding: 0.375rem;
+    }
+
+    /* Submit Button */
+    .submit-section {
+      flex-shrink: 0;
+    }
+
+    .submit-section button {
+      width: 100%;
+      padding: 0.375rem;
+      background: #4f46e5;
+      color: white;
+      border-radius: 0.375rem;
+      font-size: 0.75rem;
+      font-weight: 600;
+    }
+
+    .submit-section button:hover {
+      background: #4338ca;
+    }
+
+    /* Help Icon */
+    .help-icon {
+      position: fixed;
+      bottom: 0.5rem;
+      right: 0.5rem;
+      width: 1.25rem;
+      height: 1.25rem;
+      border-radius: 50%;
+      background: #4f46e5;
+      border: none;
+      color: white;
+      cursor: pointer;
+      font-size: 0.75rem;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+      transition: all 0.2s;
+      z-index: 40;
+    }
+
+    .help-icon:hover {
+      background: #4338ca;
+      transform: scale(1.1);
+    }
+
+    .tooltip {
+      display: none;
+      position: absolute;
+      bottom: 1.75rem;
+      right: -200px;
+      background: #1f2937;
+      color: white;
+      padding: 0.75rem;
+      border-radius: 0.5rem;
+      font-size: 0.75rem;
+      width: 500px;
+      z-index: 50;
+      line-height: 1.5;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+    }
+
+    .tooltip.show {
+      display: block;
+    }
+
+    .tooltip-title {
+      font-weight: 600;
+      margin-bottom: 0.5rem;
+    }
+
+    .tooltip-content {
+      text-align: left;
+      font-size: 0.75rem;
+      line-height: 1.6;
+    }
+
+    .tooltip-content div {
+      margin-bottom: 0.5rem;
+    }
+
+    /* Settings Modal */
+    .modal-overlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.5);
+      z-index: 50;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .modal-overlay.show {
+      display: flex;
+    }
+
+    .modal-content {
+      background: white;
+      border-radius: 1rem;
+      padding: 1.5rem;
+      max-width: 28rem;
+      width: 90%;
+      box-shadow: 0 20px 25px rgba(0, 0, 0, 0.15);
+    }
+
+    .modal-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 1rem;
+    }
+
+    .modal-header h2 {
+      font-size: 1.125rem;
+      font-weight: 700;
+      color: #111827;
+      margin: 0;
+    }
+
+    .modal-close {
+      background: none;
+      border: none;
+      font-size: 1.5rem;
+      color: #6b7280;
+      cursor: pointer;
+      padding: 0;
+      width: auto;
+      height: auto;
+    }
+
+    .modal-close:hover {
+      color: #374151;
+    }
+
+    .quality-control {
+      margin-bottom: 1rem;
+    }
+
+    .quality-label {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 0.5rem;
+      font-weight: 600;
+      font-size: 0.875rem;
+      color: #374151;
+    }
+
+    .quality-badge {
+      background: #4f46e5;
+      color: white;
+      padding: 0.25rem 0.5rem;
+      border-radius: 0.25rem;
+      font-size: 0.75rem;
+      font-weight: 600;
+    }
+
+    input[type="range"] {
+      width: 100%;
+      height: 0.5rem;
+      border-radius: 0.25rem;
+      background: #e5e7eb;
+      outline: none;
+      -webkit-appearance: none;
+    }
+
+    input[type="range"]::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      appearance: none;
+      width: 1rem;
+      height: 1rem;
+      border-radius: 50%;
+      background: #4f46e5;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    input[type="range"]::-webkit-slider-thumb:hover {
+      background: #4338ca;
+      transform: scale(1.2);
+    }
+
+    input[type="range"]::-moz-range-thumb {
+      width: 1rem;
+      height: 1rem;
+      border-radius: 50%;
+      background: #4f46e5;
+      cursor: pointer;
+      border: none;
+      transition: all 0.2s;
+    }
+
+    input[type="range"]::-moz-range-thumb:hover {
+      background: #4338ca;
+      transform: scale(1.2);
+    }
+
+    .quality-info {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 0.5rem;
+      margin-bottom: 1rem;
+    }
+
+    .info-box {
+      background: #f9fafb;
+      padding: 0.5rem;
+      border-radius: 0.375rem;
+      font-size: 0.75rem;
+    }
+
+    .info-label {
+      color: #6b7280;
+      font-weight: 600;
+      margin-bottom: 0.25rem;
+    }
+
+    .info-value {
+      color: #111827;
+      font-weight: 700;
+    }
+
+    .preset-buttons {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 0.5rem;
+      margin-bottom: 1rem;
+    }
+
+    .preset-btn {
+      padding: 0.5rem;
+      border: none;
+      border-radius: 0.375rem;
+      font-size: 0.75rem;
+      font-weight: 600;
+      cursor: pointer;
+      background: #e5e7eb;
+      color: #374151;
+      transition: all 0.2s;
+    }
+
+    .preset-btn:hover {
+      background: #d1d5db;
+    }
+
+    .preset-btn.active {
+      background: #4f46e5;
+      color: white;
+    }
+
+    .modal-footer {
+      display: flex;
+      justify-content: flex-end;
+      gap: 0.5rem;
+    }
+
+    .modal-footer button {
+      padding: 0.5rem 1.5rem;
+      background: #4f46e5;
+      color: white;
+      border-radius: 0.375rem;
+      font-size: 0.875rem;
+      font-weight: 600;
+    }
+
+    .modal-footer button:hover {
+      background: #4338ca;
+    }
+
+    canvas {
+      display: none;
+    }
+
+    svg {
+      display: inline-block;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <!-- Header -->
+    <div class="header">
+      <button class="settings-icon-btn" onclick="openSettings()" title="Configurações de Qualidade">
+        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"></path>
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
+        </svg>
+      </button>
+      <h1>Capturador de Fotos</h1>
+      <p>Tire múltiplas fotos</p>
+    </div>
+
+    <!-- Main Content -->
+    <div class="content">
+      <!-- Error Message -->
+      <div id="errorMessage" class="error-message" style="display: none;">
+        <span>✕</span>
+        <span id="errorText"></span>
+      </div>
+
+      <!-- Success Message -->
+      <div id="successMessage" class="success-message" style="display: none;">
+        <span>✓</span>
+        <span>Fotos enviadas com sucesso!</span>
+      </div>
+
+      <!-- Camera Section -->
+      <div class="camera-section">
+        <div id="cameraPlaceholder" class="camera-placeholder">
+          <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z"></path>
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 13a3 3 0 11-6 0 3 3 0 016 0z"></path>
+          </svg>
+          <p>Clique para iniciar</p>
+          <button class="btn-primary" onclick="startCamera()">
+            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" style="width: 0.75rem; height: 0.75rem;">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z"></path>
+            </svg>
+            Iniciar
+          </button>
+        </div>
+        <div id="cameraActive" style="display: none;">
+          <div class="video-container">
+            <video id="video" autoplay playsinline></video>
+          </div>
+          <div class="button-group">
+            <button class="btn-success" onclick="capturePhoto()">
+              <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" style="width: 0.75rem; height: 0.75rem;">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z"></path>
+              </svg>
+              Tirar
+            </button>
+            <button class="btn-secondary" onclick="stopCamera()">Fechar</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Gallery Section -->
+      <div id="gallerySection" class="gallery-section" style="display: none;">
+        <div class="gallery-title">Fotos (<span id="photoCount">0</span>)</div>
+        <div class="gallery-grid" id="galleryGrid"></div>
+      </div>
+
+      <!-- Rename Modal -->
+      <div id="renameModal" class="rename-modal">
+        <h3>Renomear Foto</h3>
+        <img id="renamePreview" src="" alt="Preview">
+        <input type="text" id="renameInput" placeholder="Nome da foto">
+        <div class="rename-actions">
+          <button class="btn-secondary" onclick="cancelRename()">Cancelar</button>
+          <button class="btn-primary" onclick="savePhotoName()">Salvar</button>
+        </div>
+      </div>
+
+      <!-- Submit Button -->
+      <div id="submitSection" class="submit-section" style="display: none;">
+        <button onclick="submitPhotos()">
+          <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" style="width: 0.75rem; height: 0.75rem;">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+          </svg>
+          Enviar Fotos (<span id="submitCount">0</span>)
+        </button>
+      </div>
+    </div>
+
+    <!-- Help Icon -->
+    <button class="help-icon" onmouseenter="showTooltip()" onmouseleave="hideTooltip()">
+      ?
+      <div class="tooltip" id="tooltip">
+        <div class="tooltip-title">Dicas de Uso:</div>
+        <div class="tooltip-content">
+          <div>• <strong>Engrenagem:</strong> Ajustar qualidade da imagem</div>
+          <div>• <strong>Qualidade Alta:</strong> Arquivo maior, melhor qualidade</div>
+          <div>• <strong>Qualidade Baixa:</strong> Arquivo menor, qualidade reduzida</div>
+          <div>• <strong>Câmera:</strong> Tire fotos bem iluminadas</div>
+          <div>• <strong>Editar:</strong> Renomear a foto capturada</div>
+          <div>• <strong>Remover:</strong> Deletar foto da galeria</div>
+          <div>• <strong>Enviar:</strong> Submeter todas as fotos no formulário</div>
+        </div>
+      </div>
+    </button>
+  </div>
+
+  <!-- Canvas for capturing -->
+  <canvas id="canvas"></canvas>
+
+  <!-- Settings Modal -->
+  <div class="modal-overlay" id="settingsModal">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h2>Configurações de Qualidade</h2>
+        <button class="modal-close" onclick="closeSettings()">×</button>
+      </div>
+
+      <div class="quality-control">
+        <div class="quality-label">
+          <span>Qualidade:</span>
+          <span class="quality-badge" id="qualityBadge">80%</span>
+        </div>
+        <input type="range" id="qualitySlider" min="30" max="100" value="80" oninput="updateQuality()">
+      </div>
+
+      <div class="quality-info">
+        <div class="info-box">
+          <div class="info-label">Tamanho:</div>
+          <div class="info-value" id="sizeEstimate">~150-250 KB</div>
+        </div>
+        <div class="info-box">
+          <div class="info-label">Compressão:</div>
+          <div class="info-value" id="compressionLevel">Média</div>
+        </div>
+      </div>
+
+      <div class="preset-buttons">
+        <button class="preset-btn" onclick="setQualityPreset(50)">Baixa</button>
+        <button class="preset-btn active" onclick="setQualityPreset(80)">Média</button>
+        <button class="preset-btn" onclick="setQualityPreset(100)">Alta</button>
+      </div>
+
+      <div class="modal-footer">
+        <button onclick="closeSettings()">Pronto</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    let photos = [];
+    let currentStream = null;
+    let imageQuality = 0.8;
+    let editingPhotoId = null;
+
+    // Wait for JotForm to be ready
+    function waitForJotForm() {
+      if (typeof JFCustomWidget !== 'undefined') {
+        console.log('JotForm widget loaded successfully');
+      } else {
+        setTimeout(waitForJotForm, 100);
+      }
+    }
+
+    // Load JotForm script
+    const script = document.createElement('script');
+    script.src = 'https://js.jotform.com/JFCustomWidget.js';
+    script.onload = waitForJotForm;
+    document.head.appendChild(script);
+
+    async function startCamera() {
+      try {
+        clearError();
+        const stream = await navigator.mediaDevices.getUserMedia({
+          video: { facingMode: 'environment', width: { ideal: 1280 }, height: { ideal: 720 } }
+        });
+        currentStream = stream;
+        document.getElementById('video').srcObject = stream;
+        document.getElementById('cameraPlaceholder').style.display = 'none';
+        document.getElementById('cameraActive').style.display = 'block';
+      } catch (err) {
+        showError('Não foi possível acessar a câmera. Verifique as permissões.');
+      }
+    }
+
+    function stopCamera() {
+      if (currentStream) {
+        currentStream.getTracks().forEach(track => track.stop());
+      }
+      document.getElementById('cameraActive').style.display = 'none';
+      document.getElementById('cameraPlaceholder').style.display = 'block';
+    }
+
+    function capturePhoto() {
+      const video = document.getElementById('video');
+      const canvas = document.getElementById('canvas');
+      const ctx = canvas.getContext('2d');
+      
+      canvas.width = video.videoWidth;
+      canvas.height = video.videoHeight;
+      ctx.drawImage(video, 0, 0);
+      
+      const imageData = canvas.toDataURL('image/jpeg', imageQuality);
+      const photo = {
+        id: 'photo_' + Date.now(),
+        data: imageData,
+        name: 'Foto ' + (photos.length + 1),
+        quality: Math.round(imageQuality * 100),
+        size: Math.round(imageData.length / 1024)
+      };
+      
+      photos.push(photo);
+      updateGallery();
+    }
+
+    function updateGallery() {
+      const gallerySection = document.getElementById('gallerySection');
+      const galleryGrid = document.getElementById('galleryGrid');
+      const photoCount = document.getElementById('photoCount');
+      const submitSection = document.getElementById('submitSection');
+      const submitCount = document.getElementById('submitCount');
+
+      if (photos.length === 0) {
+        gallerySection.style.display = 'none';
+        submitSection.style.display = 'none';
+        return;
+      }
+
+      gallerySection.style.display = 'block';
+      submitSection.style.display = 'block';
+      photoCount.textContent = photos.length;
+      submitCount.textContent = photos.length;
+
+      galleryGrid.innerHTML = photos.map(photo => `
+        <div class="photo-item">
+          <img src="${photo.data}" alt="${photo.name}">
+          <div class="photo-overlay">
+            <div class="photo-info">
+              <div class="photo-name">${photo.name}</div>
+              <div class="photo-actions">
+                <button class="btn-edit" onclick="startRename('${photo.id}')">
+                  <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" style="width: 0.625rem; height: 0.625rem;">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
+                  </svg>
+                  Editar
+                </button>
+                <button class="btn-remove" onclick="removePhoto('${photo.id}')">
+                  <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" style="width: 0.625rem; height: 0.625rem;">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
+                  </svg>
+                  Remover
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      `).join('');
+    }
+
+    function removePhoto(id) {
+      photos = photos.filter(p => p.id !== id);
+      updateGallery();
+    }
+
+    function startRename(id) {
+      editingPhotoId = id;
+      const photo = photos.find(p => p.id === id);
+      document.getElementById('renamePreview').src = photo.data;
+      document.getElementById('renameInput').value = photo.name;
+      document.getElementById('renameModal').classList.add('show');
+    }
+
+    function cancelRename() {
+      editingPhotoId = null;
+      document.getElementById('renameModal').classList.remove('show');
+    }
+
+    function savePhotoName() {
+      const newName = document.getElementById('renameInput').value.trim();
+      if (newName && editingPhotoId) {
+        const photo = photos.find(p => p.id === editingPhotoId);
+        if (photo) {
+          photo.name = newName;
+          updateGallery();
+          cancelRename();
+        }
+      }
+    }
+
+    function openSettings() {
+      document.getElementById('settingsModal').classList.add('show');
+    }
+
+    function closeSettings() {
+      document.getElementById('settingsModal').classList.remove('show');
+    }
+
+    function updateQuality() {
+      const value = parseInt(document.getElementById('qualitySlider').value);
+      imageQuality = value / 100;
+      document.getElementById('qualityBadge').textContent = value + '%';
+      
+      if (value <= 50) {
+        document.getElementById('sizeEstimate').textContent = '~80-120 KB';
+        document.getElementById('compressionLevel').textContent = 'Alta';
+      } else if (value <= 80) {
+        document.getElementById('sizeEstimate').textContent = '~150-250 KB';
+        document.getElementById('compressionLevel').textContent = 'Média';
+      } else {
+        document.getElementById('sizeEstimate').textContent = '~300-500 KB';
+        document.getElementById('compressionLevel').textContent = 'Baixa';
+      }
+    }
+
+    function setQualityPreset(value) {
+      document.getElementById('qualitySlider').value = value;
+      updateQuality();
+      
+      document.querySelectorAll('.preset-btn').forEach(btn => {
+        btn.classList.remove('active');
+      });
+      event.target.classList.add('active');
+    }
+
+    function showTooltip() {
+      document.getElementById('tooltip').classList.add('show');
+    }
+
+    function hideTooltip() {
+      document.getElementById('tooltip').classList.remove('show');
+    }
+
+    function showError(message) {
+      const errorDiv = document.getElementById('errorMessage');
+      document.getElementById('errorText').textContent = message;
+      errorDiv.style.display = 'flex';
+      setTimeout(() => {
+        errorDiv.style.display = 'none';
+      }, 5000);
+    }
+
+    function clearError() {
+      document.getElementById('errorMessage').style.display = 'none';
+    }
+
+    function submitPhotos() {
+      if (photos.length === 0) {
+        showError('Capture pelo menos uma foto antes de enviar.');
+        return;
+      }
+
+      try {
+        // Prepare photo names list for the field
+        const photoNames = photos.map(p => p.name).join(', ');
+        
+        // Try to send data to JotForm
+        if (typeof JFCustomWidget !== 'undefined') {
+          JFCustomWidget.sendData({
+            value: photoNames,
+            photoCount: photos.length.toString()
+          });
+          console.log('Dados enviados ao JotForm:', photoNames);
+        } else {
+          console.log('JFCustomWidget não disponível, mas processando fotos:', photoNames);
+        }
+        
+        // Show success message
+        document.getElementById('successMessage').style.display = 'flex';
+        
+        // Reset after delay
+        setTimeout(() => {
+          document.getElementById('successMessage').style.display = 'none';
+          photos = [];
+          updateGallery();
+          stopCamera();
+        }, 3000);
+        
+      } catch (err) {
+        console.error('Erro ao enviar fotos:', err);
+        showError('Erro ao enviar fotos. Tente novamente.');
+      }
+    }
+  </script>
+</body>
+</html>
